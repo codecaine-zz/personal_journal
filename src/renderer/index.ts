@@ -531,6 +531,81 @@ if (view.rpc) {
   emptyStateView.style.display = "flex";
 });
 
+// Support tab indentations in the reflection section
+entryContentInput.addEventListener("keydown", (e: KeyboardEvent) => {
+  if (e.key === "Tab") {
+    const textarea = e.currentTarget as HTMLTextAreaElement;
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const value = textarea.value;
+
+    // Check if it's a multi-line selection or if Shift+Tab is pressed
+    const startOfFirstLine = value.lastIndexOf("\n", start - 1) + 1;
+    
+    // Adjust end if selection ends exactly at the start of a line (after a newline)
+    let adjustedEnd = end;
+    if (end > start && value[end - 1] === "\n") {
+      adjustedEnd = end - 1;
+    }
+
+    const selectedText = value.substring(startOfFirstLine, adjustedEnd);
+    const isMultiLine = selectedText.includes("\n");
+
+    if (isMultiLine || e.shiftKey) {
+      e.preventDefault();
+      // Indent or outdent multiple lines
+      const endOfLastLine = value.indexOf("\n", adjustedEnd);
+      const targetEnd = endOfLastLine === -1 ? value.length : endOfLastLine;
+      const linesText = value.substring(startOfFirstLine, targetEnd);
+      const lines = linesText.split("\n");
+
+      let newLines: string[] = [];
+      let startOffset = 0;
+      let endOffset = 0;
+
+      lines.forEach((line, index) => {
+        if (e.shiftKey) {
+          // Outdent
+          if (line.startsWith("\t")) {
+            newLines.push(line.substring(1));
+            if (index === 0) startOffset -= 1;
+            endOffset -= 1;
+          } else if (line.startsWith(" ")) {
+            // Remove up to 4 spaces
+            const spaceCount = line.match(/^ +/)?.[0].length || 0;
+            const spacesToRemove = Math.min(spaceCount, 4);
+            newLines.push(line.substring(spacesToRemove));
+            if (index === 0) startOffset -= spacesToRemove;
+            endOffset -= spacesToRemove;
+          } else {
+            newLines.push(line);
+          }
+        } else {
+          // Indent
+          newLines.push("\t" + line);
+          if (index === 0) startOffset += 1;
+          endOffset += 1;
+        }
+      });
+
+      textarea.value = value.substring(0, startOfFirstLine) + newLines.join("\n") + value.substring(targetEnd);
+
+      // Adjust selection range
+      const newStart = Math.max(startOfFirstLine, start + startOffset);
+      const newEnd = Math.max(startOfFirstLine, end + endOffset);
+      textarea.setSelectionRange(newStart, newEnd);
+    } else {
+      // Single line tab insert (no Shift key)
+      e.preventDefault();
+      textarea.value = value.substring(0, start) + "\t" + value.substring(end);
+      textarea.setSelectionRange(start + 1, start + 1);
+    }
+    
+    // Trigger input event to update any validation/auto-save or framework state
+    textarea.dispatchEvent(new Event("input", { bubbles: true }));
+  }
+});
+
 // 8. Keyboard Navigation & Shortcuts
 window.addEventListener("keydown", (e) => {
   // Ignore keyboard shortcuts if the user is currently typing in an input or textarea
