@@ -2,7 +2,7 @@ export default {
   app: {
     name: "Personal Journal",
     identifier: "personal.journal.app",
-    version: "0.0.1",
+    version: "0.0.2",
   },
   build: {
     bun: {
