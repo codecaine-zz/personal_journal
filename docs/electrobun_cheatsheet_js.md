@@ -1,6 +1,6 @@
-# ⚡ Electrobun Cheatsheet (JavaScript / Untyped Edition)
+# ⚡ Electrobun Cheatsheet (TypeScript / Untyped Edition)
 
-A beginner-friendly, step-by-step developer guide to building a modular desktop application using plain **JavaScript** (ES Modules) with **Electrobun** and **Bun**. This cheatsheet is optimized for beginners who want to build a lightweight desktop app without compiling TypeScript.
+A beginner-friendly, step-by-step developer guide to building a modular desktop application using **TypeScript** files (`.ts`) but without complex type annotations (untyped code style) with **Electrobun** and **Bun**. This cheatsheet is optimized for beginners who want the simplicity of plain JavaScript syntax inside `.ts` files.
 
 ---
 
@@ -10,11 +10,11 @@ For a clean separation of concerns between your Main process (running in the Bun
 ```text
 my-electrobun-app/
 ├── src/
-│   ├── index.js               # Main Process (Bun runtime: Window, FFI, RPC)
+│   ├── index.ts               # Main Process (Bun runtime: Window, FFI, RPC)
 │   └── renderer/
 │       ├── index.html         # Frontend view layout
 │       ├── index.css          # Styling (Vanilla CSS, variables, themes)
-│       └── index.js           # Frontend view script (Electroview client)
+│       └── index.ts           # Frontend view script (Electroview client)
 ├── electrobun.config.ts       # Electrobun compiler configurations
 └── package.json               # Dependencies and custom runner scripts
 ```
@@ -22,7 +22,7 @@ my-electrobun-app/
 ---
 
 ## ⚙️ 2. Configuration (`electrobun.config.ts`)
-The root configuration file dictates the metadata of the compiled application and points Electrobun to the entrypoints for both the Bun runtime (main process) and the views. Note that `electrobun.config.ts` can import JS files directly.
+The root configuration file dictates the metadata of the compiled application and points Electrobun to the entrypoints for both the Bun runtime (main process) and the views. Note that `electrobun.config.ts` points to `.ts` files but compiles and runs them seamlessly using Bun.
 
 ```typescript
 // electrobun.config.ts
@@ -34,7 +34,7 @@ export default {
   },
   build: {
     bun: {
-      entrypoint: "src/index.js", // Points to your Javascript entrypoint
+      entrypoint: "src/index.ts", // Points to your TypeScript entrypoint
       minify: true,
     },
     views: {
@@ -49,11 +49,11 @@ export default {
 
 ---
 
-## 🖥️ 3. Main Process (`src/index.js`)
-The main process runs under Bun. It handles system paths, file persistence, registers RPC responders, creates browser windows, handles native resizing, and registers application menus.
+## 🖥️ 3. Main Process (`src/index.ts`)
+The main process runs under Bun. It handles system paths, file persistence, registers RPC responders, creates browser windows, handles native resizing, and registers application menus. Since we are using untyped TypeScript, we write clean JavaScript code within a `.ts` file.
 
-```javascript
-// src/index.js
+```typescript
+// src/index.ts
 import { BrowserWindow, BrowserView, ApplicationMenu, app } from "electrobun/bun";
 import { join } from "node:path";
 import { homedir } from "node:os";
@@ -91,7 +91,7 @@ try {
 }
 
 // 3. Define RPC Handlers
-// (In plain JavaScript, we do not need type parameters or schema definitions)
+// (In untyped TypeScript, we do not need type parameters or schema definitions)
 const rpc = BrowserView.defineRPC({
   handlers: {
     requests: {
@@ -241,7 +241,7 @@ The view layer defines your layouts. If your `titleBarStyle` in the main process
     </main>
   </div>
 
-  <script type="module" src="index.js"></script>
+  <script type="module" src="index.ts"></script>
 </body>
 </html>
 ```
@@ -263,15 +263,15 @@ For header dragging alignment, configure your layout in CSS:
 
 ---
 
-## 🧠 5. Renderer Script (`src/renderer/index.js`)
-The renderer script manages DOM elements, registers click events, listens to keyboard triggers, and communicates with the main process using Electrobun's `Electroview`.
+## 🧠 5. Renderer Script (`src/renderer/index.ts`)
+The renderer script manages DOM elements, registers click events, listens to keyboard triggers, and communicates with the main process using Electrobun's `Electroview`. Since we are using untyped TypeScript, we write clean JavaScript code within a `.ts` file.
 
-```javascript
-// src/renderer/index.js
+```typescript
+// src/renderer/index.ts
 import { Electroview } from "electrobun/view";
 
 // 1. Connect the Electroview client RPC bridge
-// (In plain JavaScript, we do not need generic type parameters)
+// (In untyped TypeScript, we do not need generic type parameters)
 const rpc = Electroview.defineRPC({
   handlers: {
     requests: {},
@@ -338,7 +338,7 @@ initApp();
 ---
 
 ## 🏃 6. Build Configurations (`package.json`)
-Manage dependencies and runner scripts. You do not need developer dependencies for TypeScript types.
+Manage dependencies and runner scripts. While files use `.ts` extensions, Bun compiles them natively, so you do not need complex type-compilation steps to run your application.
 
 ```json
 {
